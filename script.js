@@ -13,6 +13,7 @@ class NetbarSystem {
         this.isIdle = false;
         this.unlockPassword = '123456'; 
         this.isUnlockSectionVisible = false;
+        this.isLoggedIn = true;
 
         this.init();
     }
@@ -90,7 +91,54 @@ class NetbarSystem {
         this.isRunning = false;
     }
 
+    setOfflineState() {
+        this.isLoggedIn = false;
+        this.stopTimer();
+
+        const statusIndicator = document.querySelector('.status-indicator');
+        statusIndicator.classList.add('offline');
+        document.querySelector('.status-text').textContent = '已下机';
+
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const idleBtn = document.getElementById('idle-btn');
+        const rechargeBtn = document.getElementById('recharge-btn');
+        const callBtn = document.getElementById('call-btn');
+        const loginBtn = document.getElementById('login-btn');
+
+        checkoutBtn.classList.add('disabled');
+        idleBtn.classList.add('disabled');
+        rechargeBtn.classList.add('disabled');
+        callBtn.classList.add('disabled');
+        loginBtn.style.display = 'flex';
+    }
+
+    setOnlineState() {
+        this.isLoggedIn = true;
+        this.isRunning = true;
+
+        const statusIndicator = document.querySelector('.status-indicator');
+        statusIndicator.classList.remove('offline');
+        document.querySelector('.status-text').textContent = '在线';
+
+        const checkoutBtn = document.getElementById('checkout-btn');
+        const idleBtn = document.getElementById('idle-btn');
+        const rechargeBtn = document.getElementById('recharge-btn');
+        const callBtn = document.getElementById('call-btn');
+        const loginBtn = document.getElementById('login-btn');
+
+        checkoutBtn.classList.remove('disabled');
+        idleBtn.classList.remove('disabled');
+        rechargeBtn.classList.remove('disabled');
+        callBtn.classList.remove('disabled');
+        loginBtn.style.display = 'none';
+    }
+
     recharge(amount) {
+        if (!this.isLoggedIn) {
+            this.showToast('请先重新上机！', 'error');
+            return;
+        }
+
         if (amount <= 0) {
             this.showToast('请输入有效的充值金额！', 'error');
             return;
@@ -110,6 +158,11 @@ class NetbarSystem {
     }
 
     checkout() {
+        if (!this.isLoggedIn) {
+            this.showToast('您已经下机了！', 'error');
+            return;
+        }
+
         this.stopTimer();
         this.showModal('checkout-modal');
         
@@ -118,11 +171,34 @@ class NetbarSystem {
     }
 
     confirmCheckout() {
-        this.showToast(`结账成功！已消费 ${this.formatCurrency(this.consumedAmount)}，剩余 ${this.formatCurrency(this.remainingBalance)}`, 'success');
         this.hideModal('checkout-modal');
+        this.setOfflineState();
+        this.showToast(`结账成功！已消费 ${this.formatCurrency(this.consumedAmount)}，剩余 ${this.formatCurrency(this.remainingBalance)}`, 'success');
+    }
+
+    login() {
+        if (this.isLoggedIn) {
+            this.showToast('您已经在线了！', 'error');
+            return;
+        }
+
+        this.setOnlineState();
+        
+        if (this.remainingBalance > 0) {
+            this.isRunning = true;
+            this.startTimer();
+            this.showToast('重新上机成功！会话已开始', 'success');
+        } else {
+            this.showToast('余额不足，请先充值！', 'error');
+        }
     }
 
     enterIdleMode() {
+        if (!this.isLoggedIn) {
+            this.showToast('请先重新上机！', 'error');
+            return;
+        }
+
         this.isIdle = true;
         this.isUnlockSectionVisible = false;
         this.showModal('idle-modal');
@@ -165,6 +241,11 @@ class NetbarSystem {
     }
 
     callService() {
+        if (!this.isLoggedIn) {
+            this.showToast('请先重新上机！', 'error');
+            return;
+        }
+
         this.callCount++;
         if (this.callCount === 1) {
             this.showToast('已呼叫网管，请稍候...', 'success');
@@ -208,11 +289,19 @@ class NetbarSystem {
         });
 
         document.getElementById('recharge-btn').addEventListener('click', () => {
+            if (!this.isLoggedIn) {
+                this.showToast('请先重新上机！', 'error');
+                return;
+            }
             this.showModal('recharge-modal');
         });
 
         document.getElementById('call-btn').addEventListener('click', () => {
             this.callService();
+        });
+
+        document.getElementById('login-btn').addEventListener('click', () => {
+            this.login();
         });
 
         document.querySelectorAll('.recharge-option').forEach(button => {
@@ -243,14 +332,18 @@ class NetbarSystem {
 
         document.getElementById('close-checkout-modal').addEventListener('click', () => {
             this.hideModal('checkout-modal');
-            this.isRunning = true;
-            this.startTimer();
+            if (this.isLoggedIn) {
+                this.isRunning = true;
+                this.startTimer();
+            }
         });
 
         document.getElementById('cancel-checkout').addEventListener('click', () => {
             this.hideModal('checkout-modal');
-            this.isRunning = true;
-            this.startTimer();
+            if (this.isLoggedIn) {
+                this.isRunning = true;
+                this.startTimer();
+            }
         });
 
         document.getElementById('confirm-checkout').addEventListener('click', () => {
@@ -266,8 +359,10 @@ class NetbarSystem {
         document.getElementById('checkout-modal').addEventListener('click', (e) => {
             if (e.target.id === 'checkout-modal') {
                 this.hideModal('checkout-modal');
-                this.isRunning = true;
-                this.startTimer();
+                if (this.isLoggedIn) {
+                    this.isRunning = true;
+                    this.startTimer();
+                }
             }
         });
 

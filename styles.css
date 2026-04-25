@@ -93,6 +93,16 @@ body {
     font-weight: 500;
 }
 
+.status-indicator.offline .status-dot {
+    background: #666699;
+    box-shadow: none;
+    animation: none;
+}
+
+.status-indicator.offline .status-text {
+    color: #666699;
+}
+
 .main-content {
     display: flex;
     flex-direction: column;
@@ -269,6 +279,35 @@ body {
     background: linear-gradient(135deg, rgba(136, 68, 255, 0.3), rgba(136, 68, 255, 0.1));
     border-color: #8844ff;
     box-shadow: 0 0 20px rgba(136, 68, 255, 0.3);
+}
+
+.login-btn {
+    border-color: #00ff88;
+}
+
+.login-btn:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.3), rgba(0, 255, 136, 0.1));
+    border-color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+.control-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.control-btn.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.control-btn.disabled::before {
+    display: none;
+}
+
+.control-btn.disabled:hover .btn-icon {
+    transform: none;
 }
 
 .btn-icon {
