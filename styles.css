@@ -535,6 +535,62 @@ body {
     margin-top: 20px !important;
 }
 
+.unlock-section {
+    margin-top: 30px;
+}
+
+.password-input-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+#unlock-password {
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 16px;
+    width: 200px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#unlock-password:focus {
+    outline: none;
+    border-color: #00ffcc;
+    box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+}
+
+#unlock-password::placeholder {
+    color: #666699;
+}
+
+.btn-unlock {
+    padding: 12px 25px;
+    background: linear-gradient(135deg, #00ffcc, #00cc99);
+    border: none;
+    border-radius: 8px;
+    color: #000000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-unlock:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 255, 204, 0.4);
+}
+
+.password-hint {
+    font-size: 12px !important;
+    color: #666699 !important;
+    margin-top: 10px !important;
+}
+
 .btn-exit-idle {
     margin-top: 30px;
     padding: 15px 40px;

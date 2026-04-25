@@ -141,8 +141,14 @@
             <div class="modal-body">
                 <div class="idle-icon">🌙</div>
                 <p>电脑已进入挂机状态</p>
-                <p class="idle-note">按任意键或点击屏幕退出挂机模式</p>
-                <button class="btn-exit-idle" id="exit-idle-btn">退出挂机</button>
+                <p class="idle-note">按任意键或点击屏幕解锁</p>
+                <div class="unlock-section" id="unlock-section" style="display: none;">
+                    <div class="password-input-group">
+                        <input type="password" id="unlock-password" placeholder="请输入解锁密码" maxlength="20">
+                        <button class="btn-unlock" id="unlock-btn">解锁</button>
+                    </div>
+                    <p class="password-hint">默认密码: 123456</p>
+                </div>
             </div>
         </div>
     </div>

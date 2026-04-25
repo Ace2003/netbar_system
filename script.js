@@ -1,20 +1,27 @@
 class NetbarSystem {
     constructor() {
         this.hourlyRate = 10; 
-        this.remainingBalance = 100; 
+        this.initialBalance = 100; 
+        this.totalRecharge = 0; 
+        this.usedSeconds = 0; 
+        this.remainingBalance = this.initialBalance; 
         this.remainingTime = this.calculateTimeFromBalance(this.remainingBalance); 
         this.consumedAmount = 0; 
         this.isRunning = true;
         this.timerInterval = null;
         this.callCount = 0;
+        this.isIdle = false;
+        this.unlockPassword = '123456'; 
+        this.isUnlockSectionVisible = false;
 
         this.init();
     }
 
     calculateTimeFromBalance(balance) {
         const hours = Math.floor(balance / this.hourlyRate);
-        const minutes = Math.floor((balance % this.hourlyRate) / this.hourlyRate * 60);
-        const seconds = 0;
+        const remainingBalance = balance % this.hourlyRate;
+        const minutes = Math.floor((remainingBalance / this.hourlyRate) * 60);
+        const seconds = Math.floor(((remainingBalance / this.hourlyRate) * 60 - minutes) * 60);
         return { hours, minutes, seconds };
     }
 
@@ -40,29 +47,36 @@ class NetbarSystem {
         document.getElementById('consumed-amount').textContent = this.formatCurrency(this.consumedAmount);
     }
 
+    updateConsumedAndBalance() {
+        const secondsPerHour = 3600;
+        const ratePerSecond = this.hourlyRate / secondsPerHour;
+        
+        this.consumedAmount = this.usedSeconds * ratePerSecond;
+        
+        this.remainingBalance = this.initialBalance + this.totalRecharge - this.consumedAmount;
+        
+        if (this.remainingBalance < 0) {
+            this.remainingBalance = 0;
+        }
+        
+        this.remainingTime = this.calculateTimeFromBalance(this.remainingBalance);
+    }
+
     startTimer() {
         if (this.timerInterval) return;
 
         this.timerInterval = setInterval(() => {
             if (!this.isRunning) return;
 
-            if (this.remainingTime.seconds > 0) {
-                this.remainingTime.seconds--;
-            } else if (this.remainingTime.minutes > 0) {
-                this.remainingTime.minutes--;
-                this.remainingTime.seconds = 59;
-            } else if (this.remainingTime.hours > 0) {
-                this.remainingTime.hours--;
-                this.remainingTime.minutes = 59;
-                this.remainingTime.seconds = 59;
-            } else {
+            this.usedSeconds++;
+            
+            this.updateConsumedAndBalance();
+
+            if (this.remainingBalance <= 0) {
                 this.stopTimer();
                 this.showToast('网费已用完，请及时充值！', 'error');
                 return;
             }
-
-            this.remainingBalance = this.calculateBalanceFromTime(this.remainingTime);
-            this.consumedAmount = 100 - this.remainingBalance;
 
             this.updateDisplay();
         }, 1000);
@@ -82,8 +96,9 @@ class NetbarSystem {
             return;
         }
 
-        this.remainingBalance += amount;
-        this.remainingTime = this.calculateTimeFromBalance(this.remainingBalance);
+        this.totalRecharge += amount;
+        
+        this.updateConsumedAndBalance();
         
         this.updateDisplay();
         this.showToast(`充值成功！已充值 ${this.formatCurrency(amount)}`, 'success');
@@ -108,11 +123,45 @@ class NetbarSystem {
     }
 
     enterIdleMode() {
+        this.isIdle = true;
+        this.isUnlockSectionVisible = false;
         this.showModal('idle-modal');
+        document.getElementById('unlock-section').style.display = 'none';
+        document.getElementById('unlock-password').value = '';
+    }
+
+    showUnlockSection() {
+        if (!this.isIdle) return;
+        
+        this.isUnlockSectionVisible = true;
+        document.getElementById('unlock-section').style.display = 'block';
+        
+        setTimeout(() => {
+            document.getElementById('unlock-password').focus();
+        }, 100);
+    }
+
+    verifyPassword() {
+        const inputPassword = document.getElementById('unlock-password').value;
+        
+        if (inputPassword === this.unlockPassword) {
+            this.exitIdleMode();
+            return true;
+        } else {
+            this.showToast('密码错误，请重新输入！', 'error');
+            document.getElementById('unlock-password').value = '';
+            document.getElementById('unlock-password').focus();
+            return false;
+        }
     }
 
     exitIdleMode() {
+        this.isIdle = false;
+        this.isUnlockSectionVisible = false;
         this.hideModal('idle-modal');
+        document.getElementById('unlock-section').style.display = 'none';
+        document.getElementById('unlock-password').value = '';
+        this.showToast('已退出挂机模式', 'success');
     }
 
     callService() {
@@ -208,10 +257,6 @@ class NetbarSystem {
             this.confirmCheckout();
         });
 
-        document.getElementById('exit-idle-btn').addEventListener('click', () => {
-            this.exitIdleMode();
-        });
-
         document.getElementById('recharge-modal').addEventListener('click', (e) => {
             if (e.target.id === 'recharge-modal') {
                 this.hideModal('recharge-modal');
@@ -229,6 +274,37 @@ class NetbarSystem {
         document.getElementById('custom-amount-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 document.getElementById('custom-amount-btn').click();
+            }
+        });
+
+        document.getElementById('idle-modal').addEventListener('click', (e) => {
+            if (this.isIdle && !this.isUnlockSectionVisible) {
+                this.showUnlockSection();
+            }
+        });
+
+        document.getElementById('unlock-btn').addEventListener('click', () => {
+            this.verifyPassword();
+        });
+
+        document.getElementById('unlock-password').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.verifyPassword();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (this.isIdle) {
+                if (!this.isUnlockSectionVisible) {
+                    e.preventDefault();
+                    this.showUnlockSection();
+                }
+            }
+        });
+
+        document.getElementById('unlock-password').addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
             }
         });
     }
