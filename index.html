@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网吧网管管理系统</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">🎮</div>
+                <div class="logo-text">
+                    <h1>极速网吧</h1>
+                    <p>SPEED NET CAFE</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <span class="status-dot"></span>
+                <span class="status-text">在线</span>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="info-section">
+                <div class="info-card balance-card">
+                    <div class="card-icon">💰</div>
+                    <div class="card-content">
+                        <h3>剩余网费</h3>
+                        <p class="amount" id="remaining-balance">¥100.00</p>
+                    </div>
+                </div>
+
+                <div class="info-card time-card">
+                    <div class="card-icon">⏰</div>
+                    <div class="card-content">
+                        <h3>剩余时间</h3>
+                        <p class="amount" id="remaining-time">05:00:00</p>
+                    </div>
+                </div>
+
+                <div class="info-card consumed-card">
+                    <div class="card-icon">📊</div>
+                    <div class="card-content">
+                        <h3>已消费</h3>
+                        <p class="amount" id="consumed-amount">¥0.00</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="controls-section">
+                <div class="control-buttons">
+                    <button class="control-btn checkout-btn" id="checkout-btn">
+                        <div class="btn-icon">💳</div>
+                        <div class="btn-text">
+                            <h3>结账下机</h3>
+                            <p>结束当前会话</p>
+                        </div>
+                    </button>
+
+                    <button class="control-btn idle-btn" id="idle-btn">
+                        <div class="btn-icon">🌙</div>
+                        <div class="btn-text">
+                            <h3>挂机模式</h3>
+                            <p>锁定电脑</p>
+                        </div>
+                    </button>
+
+                    <button class="control-btn recharge-btn" id="recharge-btn">
+                        <div class="btn-icon">💵</div>
+                        <div class="btn-text">
+                            <h3>充值</h3>
+                            <p>添加网费</p>
+                        </div>
+                    </button>
+
+                    <button class="control-btn call-btn" id="call-btn">
+                        <div class="btn-icon">📞</div>
+                        <div class="btn-text">
+                            <h3>呼叫网管</h3>
+                            <p>寻求帮助</p>
+                        </div>
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>© 2026 极速网吧 | 客服热线: 400-123-4567</p>
+        </footer>
+    </div>
+
+    <div class="modal" id="recharge-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>充值网费</h2>
+                <button class="close-btn" id="close-recharge-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="recharge-options">
+                    <button class="recharge-option" data-amount="20">¥20</button>
+                    <button class="recharge-option" data-amount="50">¥50</button>
+                    <button class="recharge-option" data-amount="100">¥100</button>
+                    <button class="recharge-option" data-amount="200">¥200</button>
+                </div>
+                <div class="custom-amount">
+                    <label for="custom-amount-input">自定义金额:</label>
+                    <input type="number" id="custom-amount-input" placeholder="输入金额" min="1">
+                    <button class="custom-amount-btn" id="custom-amount-btn">充值</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="checkout-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>确认结账</h2>
+                <button class="close-btn" id="close-checkout-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="checkout-summary">
+                    <p>当前剩余网费: <span id="checkout-balance">¥100.00</span></p>
+                    <p>已消费金额: <span id="checkout-consumed">¥0.00</span></p>
+                    <p class="checkout-note">确认要结账下机吗？下机后将结束当前会话。</p>
+                </div>
+                <div class="checkout-buttons">
+                    <button class="btn-cancel" id="cancel-checkout">取消</button>
+                    <button class="btn-confirm" id="confirm-checkout">确认结账</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="idle-modal">
+        <div class="modal-content idle-modal">
+            <div class="modal-header">
+                <h2>挂机模式已激活</h2>
+            </div>
+            <div class="modal-body">
+                <div class="idle-icon">🌙</div>
+                <p>电脑已进入挂机状态</p>
+                <p class="idle-note">按任意键或点击屏幕退出挂机模式</p>
+                <button class="btn-exit-idle" id="exit-idle-btn">退出挂机</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
